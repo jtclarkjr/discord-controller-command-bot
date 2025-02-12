@@ -1,0 +1,14 @@
+{
+  "name": "discord-controller-command-bot",
+  "version": "1.0.0",
+  "description": "Discord controller command bot",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types index.ts"
+  },
+  "author": "jtclarkjr",
+  "dependencies": {
+    "discord.js": "^14.18.0"
+  }
+}
