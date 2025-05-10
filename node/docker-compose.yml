@@ -1,17 +1,14 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '8080:8080'
     environment:
       - NODE_ENV="production"
-      - DISCORD_BOT_URL=${DISCORD_BOT_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
     volumes:
-      - .:/app
       - /app/node_modules # Prevents overwriting node_modules inside container
-    command: ["pnpm", "run", "start"]
+    command: ['pnpm', 'run', 'start']

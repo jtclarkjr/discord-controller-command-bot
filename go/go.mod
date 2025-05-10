@@ -1,6 +1,6 @@
 module discord-controller-command-bot
 
-go 1.22.2
+go 1.24.0
 
 require github.com/bwmarrin/discordgo v0.28.1
 

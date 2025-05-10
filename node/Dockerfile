@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=23.7.0
+ARG NODE_VERSION=24.0.0
 FROM node:${NODE_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="Node.js"
@@ -13,7 +13,7 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 # Install pnpm
-ARG PNPM_VERSION=10.0.0
+ARG PNPM_VERSION=10.10.0
 RUN npm install -g pnpm@$PNPM_VERSION
 
 
@@ -24,11 +24,13 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules
-COPY package.json pnpm-lock.yaml ./
+# Copy only package.json and pnpm-lock.yaml first for better caching
+COPY package.json pnpm-lock.yaml* ./
+
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy application code
+# Copy the rest of the application code
 COPY . .
 
 
@@ -39,5 +41,5 @@ FROM base
 COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 8080
 CMD [ "pnpm", "run", "start" ]
