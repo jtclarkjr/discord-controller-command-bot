@@ -9,6 +9,6 @@
   },
   "author": "jtclarkjr",
   "dependencies": {
-    "discord.js": "^14.19.3"
+    "discord.js": "^14.23.2"
   }
 }
