@@ -55,14 +55,22 @@ func controlBot(botEndpoint *BotEndpoint, action string, s *discordgo.Session, c
 	resp, err := http.Post(url, "application/json", nil)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to %s %s bot.", action, botEndpoint.Name)
-		sendMessage(s, channelID, errMsg)
+		if sendErr := sendMessage(s, channelID, errMsg); sendErr != nil {
+			log.Printf("Error sending error message: %v", sendErr)
+		}
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			log.Printf("Error closing response body: %v", closeErr)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		errMsg := fmt.Sprintf("HTTP error! Status: %d", resp.StatusCode)
-		sendMessage(s, channelID, errMsg)
+		if sendErr := sendMessage(s, channelID, errMsg); sendErr != nil {
+			log.Printf("Error sending error message: %v", sendErr)
+		}
 		return fmt.Errorf("%s", errMsg)
 	}
 
@@ -95,8 +103,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, bot := range botEndpoints {
 				botList[i] = bot.Name
 			}
-			sendMessage(s, m.ChannelID, "Please specify the bot name. Available bots: "+
-				strings.Join(botList, ", "))
+			if err := sendMessage(s, m.ChannelID, "Please specify the bot name. Available bots: "+
+				strings.Join(botList, ", ")); err != nil {
+				log.Printf("Error sending message: %v", err)
+			}
 			return
 		}
 
@@ -107,8 +117,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, bot := range botEndpoints {
 				botList[i] = bot.Name
 			}
-			sendMessage(s, m.ChannelID, fmt.Sprintf("Bot \"%s\" not found. Available bots: %s",
-				botName, strings.Join(botList, ", ")))
+		if err := sendMessage(s, m.ChannelID, fmt.Sprintf("Bot \"%s\" not found. Available bots: %s",
+			botName, strings.Join(botList, ", "))); err != nil {
+			log.Printf("Error sending message: %v", err)
+		}
 			return
 		}
 
@@ -126,7 +138,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		for i, bot := range botEndpoints {
 			botList[i] = bot.Name
 		}
-		sendMessage(s, m.ChannelID, "Available bots: "+strings.Join(botList, ", "))
+		if err := sendMessage(s, m.ChannelID, "Available bots: "+strings.Join(botList, ", ")); err != nil {
+			log.Printf("Error sending message: %v", err)
+		}
 	}
 }
 
